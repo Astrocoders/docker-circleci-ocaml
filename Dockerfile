@@ -1,12 +1,30 @@
-FROM buildpack-deps:trusty
+FROM ubuntu:14.04
 MAINTAINER Astrocoders (https://astrocoders.com)
 
-# Install OCaml and OPAM
+ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-add-repository ppa:avsm/ppa
 RUN apt-get update
-RUN apt-get install ocaml ocaml-native-compilers camlp4-extra opam
+RUN apt-get dist-upgrade -y
+
+# Install systems deps
+RUN apt-get -y dist-upgrade
+RUN apt-get -y install python-software-properties
+RUN apt-get -y install software-properties-common
+RUN add-apt-repository ppa:avsm/ppa
+
+RUN apt-get update
+
+RUN apt-get install build-essential -y
+RUN apt-get install --reinstall make -y
+RUN apt-get install --reinstall curl -y
+RUN apt-get install --reinstall m4 -y
+
+# Install OCaml and OPAM
+RUN apt-get install ocaml ocaml-native-compilers camlp4-extra opam -y
 RUN opam init --comp=4.02.3
+
+# Install OPAM Deps
+RUN eval $(opam config env) && opam update && opam switch 4.02.3 && opam install -y graphql_ppx
 
 # Install node
 RUN groupadd --gid 1000 node \
